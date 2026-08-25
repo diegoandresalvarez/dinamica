@@ -7,10 +7,9 @@ import pandas as pd
 
 ARCHIVO_ODS = "sismo_ago_10_2026.ods"
 NOMBRE_COLUMNA = "Filename"
+COLUMNA_FS = "Frec_muestreo_Hz"
 CARPETA_NPY = "acelerogramas_npy"
 CARPETA_PDF = "acelerogramas_pdf"
-FS = 200.0                            # frecuencia de muestreo [Hz]
-dt = 1/FS                             # paso de tiempo del registro [s]
 
 COMPONENTES = [
     "Vertical",
@@ -22,14 +21,18 @@ def gms_a_decimal(coordenada):
     """Convierte una coordenada en formato DDMM.mmm a grados decimales."""
     # Los dos últimos dígitos de la parte entera son los minutos enteros;
     # el resto corresponde a los grados.
-    parte_entera = int(coordenada)
-    parte_decimal = coordenada - parte_entera
+
+    signo = np.sign(coordenada)
+    coord = np.abs(coordenada)
+
+    parte_entera = int(coord)
+    parte_decimal = coord - parte_entera
 
     minutos_enteros = parte_entera % 100
     grados = parte_entera // 100
     minutos_totales = minutos_enteros + parte_decimal
 
-    return grados + (minutos_totales / 60)
+    return signo * (grados + (minutos_totales / 60))
 
 
 def formatear_coordenada(valor):
@@ -53,6 +56,8 @@ for _, fila in df.iterrows():
         continue
 
     # A partir del nombre del archivo se lee el acelerograma
+    fs = float(fila[COLUMNA_FS])             # frecuencia de muestreo [Hz]
+    dt = 1/fs                               # paso de tiempo del registro [s]
     ruta_matriz = carpeta_npy / f"{nombre}.npy"
     ag = np.load(ruta_matriz)                # aceleración del suelo en [g]
     t_sismo = np.arange(len(ag)) * dt        # vector de tiempo [s]
@@ -72,10 +77,11 @@ for _, fila in df.iterrows():
         f"{int(fila['Altitude_m'])} m)"
         f" - PGA total = {pga_total:.4f} g"
     )
-    etiqueta_x = (
-        f"Tiempo [s] (desde {fila['First_sample_UTC']} "
-        f"hasta {fila['Last_sample_UTC']} UTC)"
-    )
+    #etiqueta_x = (
+    #    f"Tiempo [s] (desde {fila['First_sample_UTC']} "
+    #    f"hasta {fila['Last_sample_UTC']} UTC)"
+    #)
+    etiqueta_x = f"Tiempo [s]"
 
     # Se crea la figura con tres subplots, uno por componente
     fig, ejes = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
@@ -85,6 +91,8 @@ for _, fila in df.iterrows():
         ejes[indice].plot(t_sismo, ag[:, indice], linewidth=1.0)
         ejes[indice].axhline( pga[indice], color="red", linestyle="--", linewidth=0.8)
         ejes[indice].axhline(-pga[indice], color="red", linestyle="--", linewidth=0.8)
+        ejes[indice].axvline(30, color="red", linestyle="--", linewidth=0.8)
+
         ejes[indice].set_title(f"Componente {componente} (PGA = {pga[indice]:.4f} g)")
         ejes[indice].set_ylabel(f"Aceleración [g]")
         ejes[indice].grid()
