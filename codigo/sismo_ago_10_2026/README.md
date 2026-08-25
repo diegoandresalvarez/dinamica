@@ -14,3 +14,9 @@ Canales en profundidad (el sensor está sobre roca sana a 43.5m de profundidad)
 * 6 Componente WE
 
 La frecuencia de muestreo de todas las señales es 200 Hz, excepto en La Nubia que es 100 Hz.
+
+
+Se deben ejecutar en orden:
+* crear_acelerogramas.py
+* graficar_acelerogramas.py
+* graficar_espectros.py
