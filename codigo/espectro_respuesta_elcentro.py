@@ -225,6 +225,7 @@ def plot_espectro_waterfall(periodos, Sa, t_sismo, ag, ZETA, nombre_sismo, anio_
     for T, color in zip(periodos_waterfall, colores):
         _, _, _, a_abs = respuesta_1gdl_newmark(ag, dt, T, ZETA)
         ax.plot(np.full_like(t_sismo, T), t_sismo, a_abs, color=color, lw=0.6)
+        
         idx_pico = np.argmax(np.abs(a_abs))
         picos_waterfall.append((T, t_sismo[idx_pico], np.abs(a_abs[idx_pico])))
         # Etiqueta T=... a un lado del pico de cada traza
