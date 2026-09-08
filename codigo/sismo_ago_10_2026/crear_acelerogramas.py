@@ -1,5 +1,5 @@
 # Este programa genera los acelerogramas (g) a partir de los .dat
-# que arrojaron los acelerómetros. El programa corrije por línea
+# que arrojaron los acelerómetros. El programa corrige por línea
 # base usando una corrección lineal.
 
 from pathlib import Path
